@@ -30,8 +30,6 @@
     .btn-danger{background:linear-gradient(180deg, rgba(239,68,68,0.12), rgba(239,68,68,0.06));color:var(--danger)}
 
     .kbd-tip{margin-top:10px;font-size:12px;color:var(--muted)}
-
-    /* Responsive touch-friendly scaling */
     @media (max-width:420px){.calculator{padding:12px}.display{min-height:68px}.kbd-tip{font-size:11px}}
   </style>
 </head>
@@ -78,38 +76,32 @@
       const exprEl = document.getElementById('expression');
       const resEl = document.getElementById('result');
       let expression = '';
-
-      // helpers
       function sanitizeVisible(s){
         return s === '' ? '0' : s;
       }
 
       function updateDisplay(){
         exprEl.textContent = sanitizeVisible(expression);
-        // try evaluate
         const r = tryEval(expression);
         if(r === null){ resEl.textContent = 'Error'; resEl.style.opacity = 0.9; }
         else{ resEl.textContent = r; resEl.style.opacity = 1; }
       }
 
       function appendToExpr(token){
-        // keep it simple: prevent two consecutive operators (except parentheses and dot handling)
         if(token === '+'||token === '-'||token==='*'||token==='/' ){
-          if(expression === ''){ // allow leading minus
-            if(token !== '-') return; // ignore leading + * /
+          if(expression === ''){ 
+            if(token !== '-') return; 
           }
           const last = expression.slice(-1);
           if(['+','-','*','/','.'].includes(last)){
-            // replace last operator with new (but allow parentheses)
             expression = expression.slice(0,-1) + token;
             updateDisplay();
             return;
           }
         }
         if(token === '.'){
-          // avoid multiple dots in same number: find last operator
           const lastChunk = expression.split(/[-+*/()\s]/).pop();
-          if(lastChunk.includes('.')) return; // ignore second dot
+          if(lastChunk.includes('.')) return; 
           if(lastChunk === '') expression += '0';
         }
         expression += token;
@@ -121,16 +113,12 @@
 
       function tryEval(raw){
         if(raw.trim() === '') return 0;
-        // allow only digits, operators, parentheses, decimal and spaces
         if(!/^[0-9+\-*/().\s]+$/.test(raw)) return null;
         try{
-          // Prevent accidental huge expressions — limit length
           if(raw.length > 200) return null;
-          // Evaluate using Function to avoid direct eval. Still restrict characters above.
           const safe = new Function('return (' + raw + ')');
           const val = safe();
           if(!isFinite(val)) return null;
-          // trim trailing .0 for integers
           return Number.isInteger(val) ? val : roundTo(val, 10);
         }catch(e){
           return null;
@@ -141,8 +129,6 @@
         const p = Math.pow(10, places);
         return Math.round((n + Number.EPSILON) * p)/p;
       }
-
-      // button handling
       document.querySelectorAll('button').forEach(btn=>{
         btn.addEventListener('click', ()=>{
           const v = btn.dataset.value;
@@ -155,13 +141,10 @@
             else { expression = String(r); updateDisplay(); }
           }
           else if(v) {
-            // map visible symbols to actual tokens
             appendToExpr(v);
           }
         });
       });
-
-      // keyboard support
       window.addEventListener('keydown', (ev)=>{
         if(ev.key === 'Escape') { ev.preventDefault(); clearAll(); return; }
         if(ev.key === 'Backspace') { ev.preventDefault(); backspace(); return; }
@@ -171,20 +154,14 @@
           else { expression = String(r); updateDisplay(); }
           return;
         }
-        // allow digits
         if(/^[0-9]$/.test(ev.key)) { appendToExpr(ev.key); return; }
         if(ev.key === '+'||ev.key === '-'||ev.key === '*'||ev.key === '/') { appendToExpr(ev.key); return; }
         if(ev.key === '.' || ev.key === '(' || ev.key === ')') { appendToExpr(ev.key); return; }
-
-        // numpad support: map * and / and + - already covered
       });
-
-      // initialize
       clearAll();
-
-      // expose for debugging
       window._calc = {tryEval, appendToExpr, clearAll, backspace};
     })();
   </script>
 </body>
 </html>
+
