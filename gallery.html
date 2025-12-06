@@ -9,7 +9,7 @@
       --gap: 12px;
       --bg: #f7f7fb;
       --card: #ffffff;
-      --accent: #ff6bcb; /* pink accent */
+      --accent: #ff6bcb;
       --muted: #6b6b7a;
     }
     *{box-sizing:border-box}
@@ -20,12 +20,9 @@
     .container{max-width:1100px;margin:0 auto}
     header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
     header h1{font-size:18px;margin:0}
-    /* Filter buttons */
     .filters{display:flex;gap:8px;flex-wrap:wrap}
     .filters button{background:var(--card);border:1px solid #e6e6ee;padding:8px 12px;border-radius:10px;cursor:pointer}
     .filters button.active{box-shadow:0 4px 14px rgba(0,0,0,0.06);border-color:var(--accent);color:var(--accent)}
-
-    /* Gallery grid */
     .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--gap)}
     .card{background:var(--card);border-radius:12px;overflow:hidden;position:relative;cursor:pointer;transition:transform .28s ease, box-shadow .28s ease}
     .card:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(23,23,40,0.08)}
@@ -33,35 +30,23 @@
     .card .meta{padding:10px}
     .card .title{font-size:13px;margin:0;color:#111}
     .card .tag{font-size:11px;color:var(--muted);margin-top:6px}
-
-    /* Hover overlay */
     .card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%, rgba(0,0,0,0.18));opacity:0;transition:opacity .28s ease}
     .card:hover::after{opacity:1}
-
-    /* Lightbox / modal */
     .lightbox{position:fixed;inset:0;background:rgba(8,8,12,0.65);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s ease}
     .lightbox.open{opacity:1;pointer-events:auto}
     .lightbox .panel{max-width:95vw;max-height:92vh;background:transparent;display:flex;align-items:center;gap:12px}
     .lightbox img{max-width:80vw;max-height:80vh;object-fit:contain;border-radius:10px;box-shadow:0 14px 40px rgba(4,4,12,0.45)}
     .controls{display:flex;flex-direction:column;gap:8px}
     .btn{background:var(--card);border:0;padding:10px;border-radius:8px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
-
-    /* Caption */
     .caption{color:#fff;text-align:center;margin-top:10px}
-
-    /* Responsive tweaks */
     @media (max-width:600px){
       .card img{height:140px}
       header{flex-direction:column;align-items:flex-start;gap:10px}
       .lightbox img{max-width:92vw}
     }
-
-    /* Filters: CSS-based quick image filters using data-filter attribute */
     .gallery[data-filter="grayscale"] img{filter:grayscale(1)}
     .gallery[data-filter="sepia"] img{filter:sepia(.55)}
     .gallery[data-filter="blur"] img{filter:blur(2px) saturate(.9)}
-
-    /* Smooth show animation */
     .card{opacity:0;transform:translateY(10px)}
     .card.show{opacity:1;transform:translateY(0)}
 
@@ -82,8 +67,6 @@
 
     <main>
       <div id="gallery" class="gallery" data-filter="none">
-        <!-- Cards: change image src to your own images -->
-        <!-- Each card has data-category and a small title -->
 
         <article class="card" data-category="nature" tabindex="0" data-title="Aurora Over Lake">
           <img loading="lazy" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=80&auto=format&fit=crop" alt="Aurora over lake">
@@ -114,12 +97,8 @@
           <img loading="lazy" src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=1200&q=80&auto=format&fit=crop" alt="Street musician">
           <div class="meta"><p class="title">Street Musician</p><p class="tag">People</p></div>
         </article>
-
-        <!-- Add more images as needed -->
       </div>
     </main>
-
-    <!-- Lightbox markup -->
     <div id="lightbox" class="lightbox" aria-hidden="true">
       <div class="panel" role="dialog" aria-label="Image viewer">
         <button class="btn" id="prev" aria-label="Previous">◀</button>
@@ -132,7 +111,6 @@
   </div>
 
   <script>
-    // JavaScript for navigation, filter, lightbox and transitions
     (function(){
       const gallery = document.getElementById('gallery');
       const cards = Array.from(gallery.querySelectorAll('.card'));
@@ -145,15 +123,12 @@
       const nextBtn = document.getElementById('next');
 
       let currentIndex = -1;
-      let styleMode = 0; // 0: none,1:grayscale,2:sepia,3:blur
+      let styleMode = 0; 
       const styles = ['none','grayscale','sepia','blur'];
 
-      // reveal animation on load
       window.requestAnimationFrame(()=>{
         cards.forEach((c,i)=>setTimeout(()=>c.classList.add('show'), i*60));
       });
-
-      // Filter by category
       filters.forEach(btn=>{
         btn.addEventListener('click', ()=>{
           filters.forEach(b=>b.classList.remove('active'));
@@ -166,16 +141,12 @@
           }
         });
       });
-
-      // Cycle filter styles
       styleBtn.addEventListener('click', ()=>{
         styleMode = (styleMode+1) % styles.length;
         const label = styleMode === 0 ? 'Normal' : styles[styleMode];
         styleBtn.textContent = `Style: ${label.charAt(0).toUpperCase() + label.slice(1)}`;
         gallery.setAttribute('data-filter', styles[styleMode]);
       });
-
-      // Open lightbox
       function openLightbox(index){
         currentIndex = index;
         const card = cards[index];
@@ -186,20 +157,14 @@
         lightbox.classList.add('open');
         lightbox.setAttribute('aria-hidden', 'false');
       }
-
-      // Close lightbox
       function closeLightbox(){
         lightbox.classList.remove('open');
         lightbox.setAttribute('aria-hidden','true');
       }
-
-      // Events to open on click or Enter key
       cards.forEach((c,i)=>{
         c.addEventListener('click', ()=> openLightbox(i));
         c.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') openLightbox(i); });
       });
-
-      // Prev/Next controls
       function showPrev(){
         if(currentIndex <= 0) currentIndex = visibleIndexes().length - 1;
         else currentIndex--;
@@ -220,13 +185,9 @@
 
       prevBtn.addEventListener('click', showPrev);
       nextBtn.addEventListener('click', showNext);
-
-      // Clicking outside image closes lightbox
       lightbox.addEventListener('click', (e)=>{
         if(e.target === lightbox || e.target === caption) closeLightbox();
       });
-
-      // Keyboard navigation
       document.addEventListener('keydown', (e)=>{
         if(lightbox.classList.contains('open')){
           if(e.key === 'ArrowRight') showNext();
@@ -234,13 +195,11 @@
           if(e.key === 'Escape') closeLightbox();
         }
       });
-
-      // Update currentIndex to match position in visible list when opened from a card
       function openLightbox(index){
         const visible = visibleIndexes();
         const realCard = cards[index];
         const visIndex = visible.indexOf(realCard);
-        if(visIndex === -1){ // not visible — find nearest
+        if(visIndex === -1){
           currentIndex = 0;
         } else currentIndex = visIndex;
         const target = visible[currentIndex];
@@ -251,13 +210,10 @@
         lightbox.classList.add('open');
         lightbox.setAttribute('aria-hidden','false');
       }
-
-      // Small accessibility: focus trap when modal open
       lightbox.addEventListener('keydown', (e)=>{
         if(e.key === 'Tab') e.preventDefault();
       });
 
-      // Optionally implement swipe for touch devices
       let startX = null;
       lightboxImg.addEventListener('touchstart', (e)=>{ startX = e.touches[0].clientX; });
       lightboxImg.addEventListener('touchend', (e)=>{
@@ -272,3 +228,4 @@
   </script>
 </body>
 </html>
+
